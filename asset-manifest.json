@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/cigarette-orders/static/css/main.dac83c7a.css",
-    "main.js": "/cigarette-orders/static/js/main.965b199a.js",
+    "main.css": "/cigarette-orders/static/css/main.371839f8.css",
+    "main.js": "/cigarette-orders/static/js/main.18cfc213.js",
     "static/js/453.0468d23a.chunk.js": "/cigarette-orders/static/js/453.0468d23a.chunk.js",
     "static/media/dragonbackground.jpg": "/cigarette-orders/static/media/dragonbackground.c44aff0a048e840cc71e.jpg",
     "index.html": "/cigarette-orders/index.html",
-    "main.dac83c7a.css.map": "/cigarette-orders/static/css/main.dac83c7a.css.map",
-    "main.965b199a.js.map": "/cigarette-orders/static/js/main.965b199a.js.map",
+    "main.371839f8.css.map": "/cigarette-orders/static/css/main.371839f8.css.map",
+    "main.18cfc213.js.map": "/cigarette-orders/static/js/main.18cfc213.js.map",
     "453.0468d23a.chunk.js.map": "/cigarette-orders/static/js/453.0468d23a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.dac83c7a.css",
-    "static/js/main.965b199a.js"
+    "static/css/main.371839f8.css",
+    "static/js/main.18cfc213.js"
   ]
 }
