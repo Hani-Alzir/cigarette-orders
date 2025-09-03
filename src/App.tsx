@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 
 // Type definitions
@@ -83,8 +84,6 @@ const cigaretteData: Brand[] = [
     ],
   },
 ];
-
-type Screen = 'brands' | 'models' | 'summary';
 
 // BrandCard Component
 const BrandCard: React.FC<{ brand: Brand; onClick: (brand: Brand) => void }> = ({ brand, onClick }) => {
@@ -238,14 +237,13 @@ const OrderSummary: React.FC<{
   );
 };
 
-function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('brands');
-  const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
+// Main App Router Component
+const AppRoutes: React.FC = () => {
+  const navigate = useNavigate();
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   const handleBrandSelect = (brand: Brand) => {
-    setSelectedBrand(brand);
-    setCurrentScreen('models');
+    navigate(`/models/${brand.id}`);
     // Initialize quantities for all models in this brand if not already set
     const newQuantities = { ...quantities };
     brand.models.forEach((model: Model) => {
@@ -264,19 +262,17 @@ function App() {
   };
 
   const handleDone = () => {
-    setCurrentScreen('summary');
+    navigate('/summary');
   };
 
   const handleBackToBrands = () => {
-    setCurrentScreen('brands');
-    setSelectedBrand(null);
+    navigate('/');
     // Don't reset quantities - keep them for multi-brand selection
   };
 
   const handleNewOrder = () => {
     setQuantities({});
-    setCurrentScreen('brands');
-    setSelectedBrand(null);
+    navigate('/');
   };
 
   const getOrderItems = (): OrderItem[] => {
@@ -320,7 +316,7 @@ function App() {
           <div className="order-actions">
             <button 
               className="view-summary-btn" 
-              onClick={() => setCurrentScreen('summary')}
+              onClick={() => navigate('/summary')}
             >
               View Order Summary
             </button>
@@ -354,10 +350,14 @@ function App() {
     </div>
   );
 
-  const renderModelsScreen = () => {
-    if (!selectedBrand) return null;
+  const renderModelsScreen = (brandId: string) => {
+    const brand = cigaretteData.find(b => b.id === brandId);
+    if (!brand) {
+      navigate('/');
+      return null;
+    }
 
-    const totalItems = Object.values(quantities).reduce((sum: number, qty: any) => sum + qty, 0);
+    const totalItems = Object.values(quantities).reduce((sum: number, qty: number) => sum + qty, 0);
 
     return (
       <div className="models-screen">
@@ -365,14 +365,14 @@ function App() {
           <button className="back-btn" onClick={handleBackToBrands}>
             ← Back to Brands
           </button>
-          <h2>{selectedBrand.name} Models</h2>
+          <h2>{brand.name} Models</h2>
           <div className="total-items">
             Total: {totalItems} items
           </div>
         </div>
         
         <div className="models-list">
-          {selectedBrand.models.map((model: Model) => (
+          {brand.models.map((model: Model) => (
             <ModelCard
               key={model.id}
               model={model}
@@ -406,11 +406,54 @@ function App() {
   return (
     <div className="App">
       <div className="container">
-        {currentScreen === 'brands' && renderBrandsScreen()}
-        {currentScreen === 'models' && renderModelsScreen()}
-        {currentScreen === 'summary' && renderSummaryScreen()}
+        <Routes>
+          <Route path="/" element={renderBrandsScreen()} />
+          <Route path="/models/:brandId" element={
+            <ModelScreenWrapper 
+              renderModelsScreen={renderModelsScreen}
+              quantities={quantities}
+              setQuantities={setQuantities}
+            />
+          } />
+          <Route path="/summary" element={renderSummaryScreen()} />
+        </Routes>
       </div>
     </div>
+  );
+};
+
+// Wrapper component for models screen to handle URL params
+const ModelScreenWrapper: React.FC<{
+  renderModelsScreen: (brandId: string) => React.ReactNode;
+  quantities: Record<string, number>;
+  setQuantities: (quantities: Record<string, number>) => void;
+}> = ({ renderModelsScreen, quantities, setQuantities }) => {
+  const { brandId } = useParams<{ brandId: string }>();
+  
+  React.useEffect(() => {
+    if (brandId) {
+      const brand = cigaretteData.find(b => b.id === brandId);
+      if (brand) {
+        // Initialize quantities for all models in this brand if not already set
+        const newQuantities = { ...quantities };
+        brand.models.forEach((model: Model) => {
+          if (!(model.id in newQuantities)) {
+            newQuantities[model.id] = 0;
+          }
+        });
+        setQuantities(newQuantities);
+      }
+    }
+  }, [brandId, quantities, setQuantities]);
+
+  return <>{brandId ? renderModelsScreen(brandId) : null}</>;
+};
+
+function App() {
+  return (
+    <Router basename="/cigarette-orders">
+      <AppRoutes />
+    </Router>
   );
 }
 
