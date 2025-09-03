@@ -107,16 +107,16 @@ const ModelCard: React.FC<{
   model: Model; 
   quantity: number; 
   onQuantityChange: (modelId: string, quantity: number) => void 
-}> = ({ model, quantity, onQuantityChange }) => {
-  const handleIncrement = () => {
+}> = React.memo(({ model, quantity, onQuantityChange }) => {
+  const handleIncrement = React.useCallback(() => {
     onQuantityChange(model.id, quantity + 1);
-  };
+  }, [model.id, quantity, onQuantityChange]);
 
-  const handleDecrement = () => {
+  const handleDecrement = React.useCallback(() => {
     if (quantity > 0) {
       onQuantityChange(model.id, quantity - 1);
     }
-  };
+  }, [model.id, quantity, onQuantityChange]);
 
   return (
     <div className="model-card">
@@ -151,7 +151,7 @@ const ModelCard: React.FC<{
       </div>
     </div>
   );
-};
+});
 
 // OrderSummary Component
 const OrderSummary: React.FC<{ 
@@ -254,12 +254,12 @@ const AppRoutes: React.FC = () => {
     setQuantities(newQuantities);
   };
 
-  const handleQuantityChange = (modelId: string, quantity: number) => {
+  const handleQuantityChange = React.useCallback((modelId: string, quantity: number) => {
     setQuantities(prev => ({
       ...prev,
       [modelId]: quantity
     }));
-  };
+  }, []);
 
   const handleDone = () => {
     navigate('/summary');
@@ -436,15 +436,21 @@ const ModelScreenWrapper: React.FC<{
       if (brand) {
         // Initialize quantities for all models in this brand if not already set
         const newQuantities = { ...quantities };
+        let hasNewItems = false;
         brand.models.forEach((model: Model) => {
           if (!(model.id in newQuantities)) {
             newQuantities[model.id] = 0;
+            hasNewItems = true;
           }
         });
-        setQuantities(newQuantities);
+        // Only update state if there are actually new items to avoid unnecessary re-renders
+        if (hasNewItems) {
+          setQuantities(newQuantities);
+        }
       }
     }
-  }, [brandId, quantities, setQuantities]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brandId, setQuantities]); // Removed quantities from dependencies to prevent infinite loop
 
   return <>{brandId ? renderModelsScreen(brandId) : null}</>;
 };
