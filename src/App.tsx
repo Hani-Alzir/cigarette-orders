@@ -28,57 +28,57 @@ const cigaretteData: Brand[] = [
   {
     id: "marlboro",
     name: "Marlboro",
-    imageUrl: "/images/marlboro_logo.png",
+    imageUrl: `${process.env.PUBLIC_URL}/images/marlboro_logo.png`,
     models: [
       {
         id: "marlboro-gold",
         name: "Marlboro Gold",
         serialNumber: "234551",
-        imageUrl: "/images/marlboro_gold.jpg",
+        imageUrl: `${process.env.PUBLIC_URL}/images/marlboro_gold.jpg`,
       },
       {
         id: "marlboro-red",
         name: "Marlboro Red",
         serialNumber: "234552",
-        imageUrl: "/images/marlboro_logo.png",
+        imageUrl: `${process.env.PUBLIC_URL}/images/marlboro_logo.png`,
       },
     ],
   },
   {
     id: "winston",
     name: "Winston",
-    imageUrl: "/images/winston.jpg",
+    imageUrl: `${process.env.PUBLIC_URL}/images/winston.jpg`,
     models: [
       {
         id: "winston-red",
         name: "Winston Red",
         serialNumber: "234522",
-        imageUrl: "/images/winston_red.webp",
+        imageUrl: `${process.env.PUBLIC_URL}/images/winston_red.webp`,
       },
       {
         id: "winston-blue",
         name: "Winston Blue",
         serialNumber: "234521",
-        imageUrl: "/images/winston.jpg",
+        imageUrl: `${process.env.PUBLIC_URL}/images/winston.jpg`,
       },
     ],
   },
   {
     id: "camel",
     name: "Camel",
-    imageUrl: "/images/camel_logo.png",
+    imageUrl: `${process.env.PUBLIC_URL}/images/camel_logo.png`,
     models: [
       {
         id: "camel-blue",
         name: "Camel Blue",
         serialNumber: "234531",
-        imageUrl: "/images/camel_blue.webp",
+        imageUrl: `${process.env.PUBLIC_URL}/images/camel_blue.webp`,
       },
       {
         id: "camel-yellow",
         name: "Camel Yellow",
         serialNumber: "234532",
-        imageUrl: "/images/camel_yellow.webp",
+        imageUrl: `${process.env.PUBLIC_URL}/images/camel_yellow.webp`,
       },
     ],
   },
