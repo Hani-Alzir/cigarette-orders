@@ -1,157 +1,16 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
+import { loadCsvCategory, CsvItem } from './data/cigarettes';
 
 // Type definitions
-interface Model {
-  id: string;
-  name: string;
-  serialNumber: string;
-  imageUrl?: string;
-}
-
-interface Brand {
-  id: string;
-  name: string;
-  imageUrl?: string;
-  models: Model[];
-}
-
 interface OrderItem {
   serialNumber: string;
   quantity: number;
-  modelName: string;
-  brandName: string;
+  name: string;
 }
 
-// Sample data
-const cigaretteData: Brand[] = [
-  {
-    id: "marlboro",
-    name: "Marlboro",
-    imageUrl: `${process.env.PUBLIC_URL}/images/marlboro_logo.png`,
-    models: [
-      {
-        id: "marlboro-gold",
-        name: "Marlboro Gold",
-        serialNumber: "234551",
-        imageUrl: `${process.env.PUBLIC_URL}/images/marlboro_gold.jpg`,
-      },
-      {
-        id: "marlboro-red",
-        name: "Marlboro Red",
-        serialNumber: "234552",
-        imageUrl: `${process.env.PUBLIC_URL}/images/marlboro_logo.png`,
-      },
-    ],
-  },
-  {
-    id: "winston",
-    name: "Winston",
-    imageUrl: `${process.env.PUBLIC_URL}/images/winston.jpg`,
-    models: [
-      {
-        id: "winston-red",
-        name: "Winston Red",
-        serialNumber: "234522",
-        imageUrl: `${process.env.PUBLIC_URL}/images/winston_red.webp`,
-      },
-      {
-        id: "winston-blue",
-        name: "Winston Blue",
-        serialNumber: "234521",
-        imageUrl: `${process.env.PUBLIC_URL}/images/winston.jpg`,
-      },
-    ],
-  },
-  {
-    id: "camel",
-    name: "Camel",
-    imageUrl: `${process.env.PUBLIC_URL}/images/camel_logo.png`,
-    models: [
-      {
-        id: "camel-blue",
-        name: "Camel Blue",
-        serialNumber: "234531",
-        imageUrl: `${process.env.PUBLIC_URL}/images/camel_blue.webp`,
-      },
-      {
-        id: "camel-yellow",
-        name: "Camel Yellow",
-        serialNumber: "234532",
-        imageUrl: `${process.env.PUBLIC_URL}/images/camel_yellow.webp`,
-      },
-    ],
-  },
-];
-
-// BrandCard Component
-const BrandCard: React.FC<{ brand: Brand; onClick: (brand: Brand) => void }> = ({ brand, onClick }) => {
-  return (
-    <div className="brand-card" onClick={() => onClick(brand)}>
-      <div className="brand-image">
-        {brand.imageUrl ? (
-          <img src={brand.imageUrl} alt={brand.name} />
-        ) : (
-          <div className="brand-placeholder">{brand.name.charAt(0)}</div>
-        )}
-      </div>
-      <div className="brand-name">{brand.name}</div>
-      <div className="brand-models-count">{brand.models.length} models</div>
-    </div>
-  );
-};
-
-// ModelCard Component
-const ModelCard: React.FC<{ 
-  model: Model; 
-  quantity: number; 
-  onQuantityChange: (modelId: string, quantity: number) => void 
-}> = React.memo(({ model, quantity, onQuantityChange }) => {
-  const handleIncrement = React.useCallback(() => {
-    onQuantityChange(model.id, quantity + 1);
-  }, [model.id, quantity, onQuantityChange]);
-
-  const handleDecrement = React.useCallback(() => {
-    if (quantity > 0) {
-      onQuantityChange(model.id, quantity - 1);
-    }
-  }, [model.id, quantity, onQuantityChange]);
-
-  return (
-    <div className="model-card">
-      <div className="model-info">
-        <div className="model-image">
-          {model.imageUrl ? (
-            <img src={model.imageUrl} alt={model.name} />
-          ) : (
-            <div className="model-placeholder">{model.name.charAt(0)}</div>
-          )}
-        </div>
-        <div className="model-details">
-          <div className="model-name">{model.name}</div>
-          <div className="model-serial">#{model.serialNumber}</div>
-        </div>
-      </div>
-      <div className="quantity-controls">
-        <button 
-          className="quantity-btn minus" 
-          onClick={handleDecrement}
-          disabled={quantity === 0}
-        >
-          -
-        </button>
-        <span className="quantity-display">{quantity}</span>
-        <button 
-          className="quantity-btn plus" 
-          onClick={handleIncrement}
-        >
-          +
-        </button>
-      </div>
-    </div>
-  );
-});
+// ...existing code...
 
 // OrderSummary Component
 const OrderSummary: React.FC<{ 
@@ -202,7 +61,7 @@ const OrderSummary: React.FC<{
               <div key={index} className="order-item">
                 <div className="item-info">
                   <span className="item-serial">#{item.serialNumber}</span>
-                  <span className="item-name">{item.modelName}</span>
+                  <span className="item-name">{item.name}</span>
                 </div>
                 <span className="item-quantity">x{item.quantity}</span>
               </div>
@@ -242,163 +101,202 @@ const AppRoutes: React.FC = () => {
   const navigate = useNavigate();
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
-  const handleBrandSelect = (brand: Brand) => {
-    navigate(`/models/${brand.id}`);
-    // Initialize quantities for all models in this brand if not already set
-    const newQuantities = { ...quantities };
-    brand.models.forEach((model: Model) => {
-      if (!(model.id in newQuantities)) {
-        newQuantities[model.id] = 0;
-      }
-    });
-    setQuantities(newQuantities);
-  };
-
-  const handleQuantityChange = React.useCallback((modelId: string, quantity: number) => {
-    setQuantities(prev => ({
-      ...prev,
-      [modelId]: quantity
-    }));
-  }, []);
-
-  const handleDone = () => {
-    navigate('/summary');
-  };
-
-  const handleBackToBrands = () => {
-    navigate('/');
-    // Don't reset quantities - keep them for multi-brand selection
-  };
-
   const handleNewOrder = () => {
     setQuantities({});
     navigate('/');
   };
 
+  const [activeCsvSection, setActiveCsvSection] = useState<'drehtabak' | 'stopftabak' | 'zigaretten' | null>(null);
+  const [drehtabakItems, setDrehtabakItems] = useState<CsvItem[] | null>(null);
+  const [stopftabakItems, setStopftabakItems] = useState<CsvItem[] | null>(null);
+  const [zigarettenItems, setZigarettenItems] = useState<CsvItem[] | null>(null);
+  const [csvLoading, setCsvLoading] = useState(false);
+  const [csvError, setCsvError] = useState<string | null>(null);
+
+  const csvKey = (item: CsvItem) => `${item.category}:${item.serialNumber}`;
+
+  const handleCsvQuantityChange = (item: CsvItem, delta: number) => {
+    const key = csvKey(item);
+    setQuantities(prev => {
+      const current = prev[key] || 0;
+      const next = Math.max(0, current + delta);
+      if (next === current) return prev;
+      return { ...prev, [key]: next };
+    });
+  };
+
+  const forceReloadSection = (section: 'drehtabak' | 'stopftabak' | 'zigaretten') => {
+    if (section === 'drehtabak') setDrehtabakItems(null);
+    if (section === 'stopftabak') setStopftabakItems(null);
+    if (section === 'zigaretten') setZigarettenItems(null);
+  };
+
+  const loadCsvIfNeeded = async (section: 'drehtabak' | 'stopftabak' | 'zigaretten', opts: { force?: boolean } = {}) => {
+    const togglingSame = section === activeCsvSection;
+    if (togglingSame && !opts.force) {
+      // Collapse if same section clicked (no force)
+      setActiveCsvSection(null);
+      return;
+    }
+    setActiveCsvSection(section);
+    if (opts.force) forceReloadSection(section);
+    const alreadyLoaded = !opts.force && ((section === 'drehtabak' && drehtabakItems) ||
+      (section === 'stopftabak' && stopftabakItems) ||
+      (section === 'zigaretten' && zigarettenItems));
+    if (alreadyLoaded) return;
+    setCsvLoading(true);
+    setCsvError(null);
+    try {
+      const data = await loadCsvCategory(section);
+      if (section === 'drehtabak') setDrehtabakItems(data);
+      if (section === 'stopftabak') setStopftabakItems(data);
+      if (section === 'zigaretten') setZigarettenItems(data);
+    } catch (e: any) {
+      setCsvError(e.message || 'Failed to load CSV');
+    } finally {
+      setCsvLoading(false);
+    }
+  };
+
+  const renderCsvItems = (items: CsvItem[] | null) => {
+    if (csvLoading && !items) return <p style={{ color: 'white' }}>Loading CSV...</p>;
+    if (csvError) return <p style={{ color: '#ffc107' }}>Error: {csvError}</p>;
+    if (!items) return <p style={{ color: 'white' }}>Section not loaded.</p>;
+    if (items.length === 0) return <p style={{ color: 'white' }}>File loaded but no rows parsed (no valid lines).</p>;
+    // Detect sentinel cases
+    if (items.length === 1 && items[0].serialNumber === 'ERR') {
+      return <p style={{ color: '#ffc107' }}>Failed to load CSV (see console). You can try again later.</p>;
+    }
+    if (items.length === 1 && items[0].serialNumber === '00000' && items[0].name === 'Fallback Example') {
+      return <p style={{ color: 'white' }}>CSV appeared empty. Showing fallback example entry.</p>;
+    }
+    return (
+      <div className="brands-grid">
+        {items.map(it => {
+          const qty = quantities[csvKey(it)] || 0;
+          return (
+            <div key={csvKey(it)} className="brand-card" style={{ position: 'relative' }}>
+              {qty > 0 && (
+                <div className="brand-item-count" style={{ top: 8, right: 8 }}>{qty}</div>
+              )}
+              <div className="brand-name" style={{ marginBottom: 8 }}>{it.name}</div>
+              <div className="brand-models-count" style={{ marginBottom: 12 }}>Serial: <span style={{ color: '#007bff' }}>{it.serialNumber}</span></div>
+              <div className="quantity-controls" style={{ justifyContent: 'center' }}>
+                <button className="quantity-btn minus" onClick={() => handleCsvQuantityChange(it, -1)} disabled={qty === 0}>-</button>
+                <span className="quantity-display">{qty}</span>
+                <button className="quantity-btn plus" onClick={() => handleCsvQuantityChange(it, 1)}>+</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const getOrderItems = (): OrderItem[] => {
     const allItems: OrderItem[] = [];
-    
-    // Go through all brands and collect items with quantities > 0
-    cigaretteData.forEach((brand: Brand) => {
-      brand.models.forEach((model: Model) => {
-        const quantity = quantities[model.id] || 0;
-        if (quantity > 0) {
+    const pushCsv = (items: CsvItem[] | null) => {
+      if (!items) return;
+      items.forEach(it => {
+        const qty = quantities[csvKey(it)] || 0;
+        if (qty > 0) {
           allItems.push({
-            serialNumber: model.serialNumber,
-            quantity: quantity,
-            modelName: model.name,
-            brandName: brand.name
+            serialNumber: it.serialNumber,
+            quantity: qty,
+            name: it.name
           });
         }
       });
-    });
-    
+    };
+    pushCsv(drehtabakItems);
+    pushCsv(stopftabakItems);
+    pushCsv(zigarettenItems);
     return allItems;
-  };
-
-  const getBrandItemCount = (brand: Brand): number => {
-    return brand.models.reduce((count: number, model: Model) => {
-      return count + (quantities[model.id] || 0);
-    }, 0);
   };
 
   const getTotalItemCount = (): number => {
     return Object.values(quantities).reduce((sum: number, qty: number) => sum + qty, 0);
   };
 
-  const renderBrandsScreen = () => (
+  const renderHomeScreen = () => (
     <div className="brands-screen">
-      <h1>Cigarette Orders</h1>
-      <p className="subtitle">Select a brand to start your order</p>
+      <h1>Kiosk Münchfeld</h1>
+      <div className="order-actions" style={{ marginBottom: 24 }}>
+        <button
+          className="view-summary-btn"
+          title="Click to toggle, Shift+Click to reload"
+          onClick={(e) => loadCsvIfNeeded("drehtabak", { force: e.shiftKey })}
+        >
+          Drehtabak-Table 1
+        </button>
+        <button
+          className="view-summary-btn"
+          title="Click to toggle, Shift+Click to reload"
+          onClick={(e) => loadCsvIfNeeded("stopftabak", { force: e.shiftKey })}
+        >
+          Stopftabak-Table 1
+        </button>
+        <button
+          className="view-summary-btn"
+          title="Click to toggle, Shift+Click to reload"
+          onClick={(e) => loadCsvIfNeeded("zigaretten", { force: e.shiftKey })}
+        >
+          Zigaretten-Table 1
+        </button>
+      </div>
       {getTotalItemCount() > 0 && (
         <div className="current-order-info">
           <p>Current order: {getTotalItemCount()} items selected</p>
           <div className="order-actions">
-            <button 
-              className="view-summary-btn" 
-              onClick={() => navigate('/summary')}
+            <button
+              className="view-summary-btn"
+              onClick={() => navigate("/summary")}
             >
               View Order Summary
             </button>
-            <button 
-              className="new-order-btn" 
-              onClick={handleNewOrder}
-            >
+            <button className="new-order-btn" onClick={handleNewOrder}>
               New Order
             </button>
           </div>
         </div>
       )}
-      <div className="brands-grid">
-        {cigaretteData.map((brand: Brand) => {
-          const brandItemCount = getBrandItemCount(brand);
-          return (
-            <div key={brand.id} className="brand-card-wrapper">
-              <BrandCard
-                brand={brand}
-                onClick={handleBrandSelect}
-              />
-              {brandItemCount > 0 && (
-                <div className="brand-item-count">
-                  {brandItemCount} items selected
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      {activeCsvSection === "drehtabak" && (
+        <div style={{ marginTop: 32 }}>
+          <h2
+            style={{ color: "white", textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
+          >
+            Drehtabak Items
+          </h2>
+          {renderCsvItems(drehtabakItems)}
+        </div>
+      )}
+      {activeCsvSection === "stopftabak" && (
+        <div style={{ marginTop: 32 }}>
+          <h2
+            style={{ color: "white", textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
+          >
+            Stopftabak Items
+          </h2>
+          {renderCsvItems(stopftabakItems)}
+        </div>
+      )}
+      {activeCsvSection === "zigaretten" && (
+        <div style={{ marginTop: 32 }}>
+          <h2
+            style={{ color: "white", textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
+          >
+            Zigaretten Items
+          </h2>
+          {renderCsvItems(zigarettenItems)}
+        </div>
+      )}
     </div>
   );
-
-  const renderModelsScreen = (brandId: string) => {
-    const brand = cigaretteData.find(b => b.id === brandId);
-    if (!brand) {
-      navigate('/');
-      return null;
-    }
-
-    const totalItems = Object.values(quantities).reduce((sum: number, qty: number) => sum + qty, 0);
-
-    return (
-      <div className="models-screen">
-        <div className="models-header">
-          <button className="back-btn" onClick={handleBackToBrands}>
-            ← Back to Brands
-          </button>
-          <h2>{brand.name} Models</h2>
-          <div className="total-items">
-            Total: {totalItems} items
-          </div>
-        </div>
-        
-        <div className="models-list">
-          {brand.models.map((model: Model) => (
-            <ModelCard
-              key={model.id}
-              model={model}
-              quantity={quantities[model.id] || 0}
-              onQuantityChange={handleQuantityChange}
-            />
-          ))}
-        </div>
-        
-        <div className="models-actions">
-          <button 
-            className="done-btn" 
-            onClick={handleDone}
-            disabled={totalItems === 0}
-          >
-            Done ({totalItems} items)
-          </button>
-        </div>
-      </div>
-    );
-  };
 
   const renderSummaryScreen = () => (
     <OrderSummary
       items={getOrderItems()}
-      onBack={handleBackToBrands}
+      onBack={() => navigate('/')}
       onNewOrder={handleNewOrder}
     />
   );
@@ -407,52 +305,12 @@ const AppRoutes: React.FC = () => {
     <div className="App">
       <div className="container">
         <Routes>
-          <Route path="/" element={renderBrandsScreen()} />
-          <Route path="/models/:brandId" element={
-            <ModelScreenWrapper 
-              renderModelsScreen={renderModelsScreen}
-              quantities={quantities}
-              setQuantities={setQuantities}
-            />
-          } />
+          <Route path="/" element={renderHomeScreen()} />
           <Route path="/summary" element={renderSummaryScreen()} />
         </Routes>
       </div>
     </div>
   );
-};
-
-// Wrapper component for models screen to handle URL params
-const ModelScreenWrapper: React.FC<{
-  renderModelsScreen: (brandId: string) => React.ReactNode;
-  quantities: Record<string, number>;
-  setQuantities: (quantities: Record<string, number>) => void;
-}> = ({ renderModelsScreen, quantities, setQuantities }) => {
-  const { brandId } = useParams<{ brandId: string }>();
-  
-  React.useEffect(() => {
-    if (brandId) {
-      const brand = cigaretteData.find(b => b.id === brandId);
-      if (brand) {
-        // Initialize quantities for all models in this brand if not already set
-        const newQuantities = { ...quantities };
-        let hasNewItems = false;
-        brand.models.forEach((model: Model) => {
-          if (!(model.id in newQuantities)) {
-            newQuantities[model.id] = 0;
-            hasNewItems = true;
-          }
-        });
-        // Only update state if there are actually new items to avoid unnecessary re-renders
-        if (hasNewItems) {
-          setQuantities(newQuantities);
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [brandId, setQuantities]); // Removed quantities from dependencies to prevent infinite loop
-
-  return <>{brandId ? renderModelsScreen(brandId) : null}</>;
 };
 
 function App() {
