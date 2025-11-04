@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/cigarette-orders/static/css/main.1775e75c.css",
-    "main.js": "/cigarette-orders/static/js/main.76948004.js",
+    "main.js": "/cigarette-orders/static/js/main.e4b54b23.js",
     "static/js/453.0468d23a.chunk.js": "/cigarette-orders/static/js/453.0468d23a.chunk.js",
     "index.html": "/cigarette-orders/index.html",
     "main.1775e75c.css.map": "/cigarette-orders/static/css/main.1775e75c.css.map",
-    "main.76948004.js.map": "/cigarette-orders/static/js/main.76948004.js.map",
+    "main.e4b54b23.js.map": "/cigarette-orders/static/js/main.e4b54b23.js.map",
     "453.0468d23a.chunk.js.map": "/cigarette-orders/static/js/453.0468d23a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1775e75c.css",
-    "static/js/main.76948004.js"
+    "static/js/main.e4b54b23.js"
   ]
 }
