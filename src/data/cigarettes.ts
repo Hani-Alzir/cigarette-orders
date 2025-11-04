@@ -144,7 +144,7 @@ export const cigaretteData: Brand[] = [
 export interface CsvItem {
   name: string;
   serialNumber: string;
-  category: 'drehtabak' | 'stopftabak' | 'zigaretten';
+  category: 'drehtabak' | 'stopftabak' | 'zigaretten' | 'zubehor';
 }
 
 // Generic CSV parser: expects lines in format NAME;SERIAL
@@ -193,13 +193,14 @@ async function fetchCsv(path: string): Promise<string> {
   return text;
 }
 
-export async function loadCsvCategory(category: 'drehtabak' | 'stopftabak' | 'zigaretten'): Promise<CsvItem[]> {
+export async function loadCsvCategory(category: 'drehtabak' | 'stopftabak' | 'zigaretten' | 'zubehor'): Promise<CsvItem[]> {
   const baseEnv = (process.env.PUBLIC_URL || '').replace(/\/$/, '');
   const candidates: string[] = [];
   const filenames: Record<typeof category, string> = {
     drehtabak: 'Drehtabak-Table 1.csv',
     stopftabak: 'Stopftabak-Table 1.csv',
-    zigaretten: 'Zigaretten-Table 1.csv'
+    zigaretten: 'Zigaretten-Table 1.csv',
+    zubehor: 'Zubehor-Table 1.csv'
   };
   const file = filenames[category];
   // Add direct path with env base (may be empty)
@@ -239,11 +240,12 @@ export async function loadCsvCategory(category: 'drehtabak' | 'stopftabak' | 'zi
   return [{ name: 'Fallback Example', serialNumber: '00000', category }];
 }
 
-export async function loadAllCsv(): Promise<{ drehtabak: CsvItem[]; stopftabak: CsvItem[]; zigaretten: CsvItem[] }> {
-  const [drehtabak, stopftabak, zigaretten] = await Promise.all([
+export async function loadAllCsv(): Promise<{ drehtabak: CsvItem[]; stopftabak: CsvItem[]; zigaretten: CsvItem[]; zubehor: CsvItem[] }> {
+  const [drehtabak, stopftabak, zigaretten, zubehor] = await Promise.all([
     loadCsvCategory('drehtabak'),
     loadCsvCategory('stopftabak'),
-    loadCsvCategory('zigaretten')
+    loadCsvCategory('zigaretten'),
+    loadCsvCategory('zubehor')
   ]);
-  return { drehtabak, stopftabak, zigaretten };
+  return { drehtabak, stopftabak, zigaretten, zubehor };
 }

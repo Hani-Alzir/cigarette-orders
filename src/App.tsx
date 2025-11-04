@@ -106,10 +106,11 @@ const AppRoutes: React.FC = () => {
     navigate('/');
   };
 
-  const [activeCsvSection, setActiveCsvSection] = useState<'drehtabak' | 'stopftabak' | 'zigaretten' | null>(null);
+  const [activeCsvSection, setActiveCsvSection] = useState<'drehtabak' | 'stopftabak' | 'zigaretten' | 'zubehor' | null>(null);
   const [drehtabakItems, setDrehtabakItems] = useState<CsvItem[] | null>(null);
   const [stopftabakItems, setStopftabakItems] = useState<CsvItem[] | null>(null);
   const [zigarettenItems, setZigarettenItems] = useState<CsvItem[] | null>(null);
+  const [zubehorItems, setZubehorItems] = useState<CsvItem[] | null>(null);
   const [csvLoading, setCsvLoading] = useState(false);
   const [csvError, setCsvError] = useState<string | null>(null);
 
@@ -125,13 +126,14 @@ const AppRoutes: React.FC = () => {
     });
   };
 
-  const forceReloadSection = (section: 'drehtabak' | 'stopftabak' | 'zigaretten') => {
+  const forceReloadSection = (section: 'drehtabak' | 'stopftabak' | 'zigaretten' | 'zubehor') => {
     if (section === 'drehtabak') setDrehtabakItems(null);
     if (section === 'stopftabak') setStopftabakItems(null);
     if (section === 'zigaretten') setZigarettenItems(null);
+    if (section === 'zubehor') setZubehorItems(null);
   };
 
-  const loadCsvIfNeeded = async (section: 'drehtabak' | 'stopftabak' | 'zigaretten', opts: { force?: boolean } = {}) => {
+  const loadCsvIfNeeded = async (section: 'drehtabak' | 'stopftabak' | 'zigaretten' | 'zubehor', opts: { force?: boolean } = {}) => {
     const togglingSame = section === activeCsvSection;
     if (togglingSame && !opts.force) {
       // Collapse if same section clicked (no force)
@@ -142,7 +144,8 @@ const AppRoutes: React.FC = () => {
     if (opts.force) forceReloadSection(section);
     const alreadyLoaded = !opts.force && ((section === 'drehtabak' && drehtabakItems) ||
       (section === 'stopftabak' && stopftabakItems) ||
-      (section === 'zigaretten' && zigarettenItems));
+      (section === 'zigaretten' && zigarettenItems) ||
+      (section === 'zubehor' && zubehorItems));
     if (alreadyLoaded) return;
     setCsvLoading(true);
     setCsvError(null);
@@ -151,6 +154,7 @@ const AppRoutes: React.FC = () => {
       if (section === 'drehtabak') setDrehtabakItems(data);
       if (section === 'stopftabak') setStopftabakItems(data);
       if (section === 'zigaretten') setZigarettenItems(data);
+      if (section === 'zubehor') setZubehorItems(data);
     } catch (e: any) {
       setCsvError(e.message || 'Failed to load CSV');
     } finally {
@@ -211,6 +215,7 @@ const AppRoutes: React.FC = () => {
     pushCsv(drehtabakItems);
     pushCsv(stopftabakItems);
     pushCsv(zigarettenItems);
+    pushCsv(zubehorItems);
     return allItems;
   };
 
@@ -242,6 +247,13 @@ const AppRoutes: React.FC = () => {
           onClick={(e) => loadCsvIfNeeded("zigaretten", { force: e.shiftKey })}
         >
           Zigaretten-Table 1
+        </button>
+        <button
+          className="view-summary-btn"
+          title="Click to toggle, Shift+Click to reload"
+          onClick={(e) => loadCsvIfNeeded("zubehor", { force: e.shiftKey })}
+        >
+          Zubehor-Table 1
         </button>
       </div>
       {getTotalItemCount() > 0 && (
@@ -288,6 +300,16 @@ const AppRoutes: React.FC = () => {
             Zigaretten Items
           </h2>
           {renderCsvItems(zigarettenItems)}
+        </div>
+      )}
+      {activeCsvSection === "zubehor" && (
+        <div style={{ marginTop: 32 }}>
+          <h2
+            style={{ color: "white", textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
+          >
+            Zubehor Items
+          </h2>
+          {renderCsvItems(zubehorItems)}
         </div>
       )}
     </div>
