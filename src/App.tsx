@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
-import { loadCsvCategory, CsvItem } from './data/cigarettes';
+import { loadCsvCategory } from './data/cigarettes';
+import { CsvItem } from './data/models';
 
 // Type definitions
 interface OrderItem {
@@ -232,29 +233,28 @@ const AppRoutes: React.FC = () => {
           title="Click to toggle, Shift+Click to reload"
           onClick={(e) => loadCsvIfNeeded("drehtabak", { force: e.shiftKey })}
         >
-          Drehtabak-Table 1
+          Drehtabak
         </button>
         <button
           className="view-summary-btn"
           title="Click to toggle, Shift+Click to reload"
           onClick={(e) => loadCsvIfNeeded("stopftabak", { force: e.shiftKey })}
         >
-          Stopftabak-Table 1
+          Stopftabak
         </button>
         <button
           className="view-summary-btn"
           title="Click to toggle, Shift+Click to reload"
           onClick={(e) => loadCsvIfNeeded("zigaretten", { force: e.shiftKey })}
         >
-          Zigaretten-Table 1
+          Zigaretten
         </button>
         <button
           className="view-summary-btn"
           title="Click to toggle, Shift+Click to reload"
           onClick={(e) => loadCsvIfNeeded("zubehor", { force: e.shiftKey })}
         >
-          
-          Zubehor-Table 1
+          Zubehör
         </button>
       </div>
       {getTotalItemCount() > 0 && (
