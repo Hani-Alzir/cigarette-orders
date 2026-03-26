@@ -36,7 +36,7 @@
   margin: 0;
   color: var(--color-heading);
   font-size: var(--font-xl); /* Larger heading */
-  font-weight: 800; /* Extra bold heading */
+  font-weight: 700;
 }
 
 .welcome-icon {
