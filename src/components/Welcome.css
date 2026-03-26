@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(5px); /* Added blur effect */
+  backdrop-filter: blur(8px); /* Increased blur for focus */ /* Added blur effect */
 }
 
 .welcome-popup {
