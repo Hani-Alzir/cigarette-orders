@@ -51,7 +51,7 @@
 
 .welcome-button {
   background: var(--color-accent);
-  color: #fff;
+  color: #f0f0f0;
   border: none;
   padding: 1rem 2.5rem; /* Larger button */
   border-radius: var(--radius-md);
